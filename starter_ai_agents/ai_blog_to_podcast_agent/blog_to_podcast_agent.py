@@ -4,8 +4,13 @@ from agno.agent import Agent
 from agno.run.agent import RunOutput
 from agno.models.openai import OpenAIChat
 from agno.tools.firecrawl import FirecrawlTools
+from agno.models.google import Gemini
 from elevenlabs import ElevenLabs
 import streamlit as st
+
+import os
+os.environ['HTTP_PROXY'] = "http://127.0.0.1:7890"
+os.environ['HTTPS_PROXY'] = "http://127.0.0.1:7890"
 
 # Streamlit Setup
 st.set_page_config(page_title="📰 ➡️ 🎙️ Blog to Podcast", page_icon="🎙️")
@@ -13,7 +18,7 @@ st.title("📰 ➡️ 🎙️ Blog to Podcast Agent")
 
 # API Keys (Runtime Input)
 st.sidebar.header("🔑 API Keys")
-openai_key = st.sidebar.text_input("OpenAI API Key", type="password")
+openai_key = st.sidebar.text_input("Gemini API Key", type="password")
 elevenlabs_key = st.sidebar.text_input("ElevenLabs API Key", type="password")
 firecrawl_key = st.sidebar.text_input("Firecrawl API Key", type="password")
 
@@ -28,13 +33,15 @@ if st.button("🎙️ Generate Podcast", disabled=not all([openai_key, elevenlab
         with st.spinner("Scraping blog and generating podcast..."):
             try:
                 # Set API keys
-                os.environ["OPENAI_API_KEY"] = openai_key
+                os.environ["GEMINI_API_KEY"] = openai_key
                 os.environ["FIRECRAWL_API_KEY"] = firecrawl_key
+
+                gemini_model = Gemini( id="gemini-2.5-flash", api_key=os.getenv("GEMINI_API_KEY"), )
                 
                 # Create agent for scraping and summarization
                 agent = Agent(
                     name="Blog Summarizer",
-                    model=OpenAIChat(id="gpt-4o"),
+                    model=gemini_model,
                     tools=[FirecrawlTools()],
                     instructions=[
                         "Scrape the blog URL and create a concise, engaging summary (max 2000 characters) suitable for a podcast.",
