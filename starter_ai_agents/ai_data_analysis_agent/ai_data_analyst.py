@@ -3,9 +3,12 @@ import csv
 import streamlit as st
 import pandas as pd
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+# from agno.models.openai import OpenAIChat
+# from agno.models.google import Gemini
+from agno.models.siliconflow import Siliconflow
 from agno.tools.duckdb import DuckDbTools
 from agno.tools.pandas import PandasTools
+
 
 # Function to preprocess and save the uploaded file
 def preprocess_and_save(file):
@@ -51,7 +54,7 @@ st.title("📊 Data Analyst Agent")
 # Sidebar for API keys
 with st.sidebar:
     st.header("API Keys")
-    openai_key = st.text_input("Enter your OpenAI API key:", type="password")
+    openai_key = st.text_input("Enter your SiliconFlow API key:", type="password")
     if openai_key:
         st.session_state.openai_key = openai_key
         st.success("API key saved!")
@@ -81,11 +84,23 @@ if uploaded_file is not None and "openai_key" in st.session_state:
             path=temp_path,
             table="uploaded_data",
         )
+
+        pandas_tools = PandasTools()
+        pandas_tools.dataframes["uploaded_data"] = df
         
         # Initialize the Agent with DuckDB and Pandas tools
         data_analyst_agent = Agent(
-            model=OpenAIChat(id="gpt-4o", api_key=st.session_state.openai_key),
-            tools=[duckdb_tools, PandasTools()],
+            # model=OpenAIChat(id="gpt-4o", api_key=st.session_state.openai_key),
+            # model=Gemini(id="gpt-4o", api_key=st.session_state.openai_key),
+            model=Siliconflow(
+                id="deepseek-ai/DeepSeek-V3.1-Terminus",
+                name="deepseek-ai/DeepSeek-V3.1-Terminus",
+                api_key=st.session_state.openai_key,
+                base_url="https://api.siliconflow.cn/v1",
+            ),
+            # tools=[duckdb_tools, PandasTools()],
+            # tools=[duckdb_tools],
+            tools=[pandas_tools],
             system_message="You are an expert data analyst. Use the 'uploaded_data' table to answer user queries. Generate SQL queries using DuckDB tools to solve the user's query. Provide clear and concise answers with the results.",
             markdown=True,
         )

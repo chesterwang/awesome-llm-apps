@@ -1,3 +1,21 @@
+开发笔记
+
+1. [Python API – DuckDB](https://duckdb.org/docs/stable/clients/python/overview)
+  1. DuckDB的使用文档
+  2. 使用非常方便
+2. [Core Extensions – DuckDB](https://duckdb.org/docs/stable/core_extensions/overview)
+  1. 还有各种插件可以使用
+3. pandas 在处理字符串的单个双引号特殊情况的具体方法
+  1. `df[col] = df[col].astype(str).replace({r'"': '""'}, regex=True)`
+  2. CSV解析器中对于 引号的解析逻辑规则
+    1. 根据 CSV 规范，连续的两个双引号 "" 代表一个字面意义上的双引号 "，而不是字段的结束。
+4. 数据分析的tools  
+  1. `tools=[duckdb_tools, PandasTools()],`
+  2. 这两个工具都可以
+  3. 但 PandasTools 写得过于粗糙，并且两个方法 需要dataframe做参数，所以在query中需要一定程度的引导说明是哪个表，即使是当前只有一个dataframe（虽然不指定哪个表也有可能执行成功）。
+  4. PandasTools 中的init方法并没有 dataframes参数，必须手动赋值（不符合一般的python成员暴露规范）。
+
+
 # 📊 AI Data Analysis Agent
 
 ### 🎓 FREE Step-by-Step Tutorial 
